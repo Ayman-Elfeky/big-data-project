@@ -115,7 +115,7 @@ for col_name in numeric_cols:
 
 # DF.dtypes: [('Rk', 'int'), ('Player', 'string'), ('Nation', 'string'), ('Pos', 'string'), ('Squad', 'string'), ('Age', 'int'), ('Born', 'int'), ('MP', 'int'), ('Starts', 'int'), ('Min', 'int'), ('90s', 'float'), ('Gls', 'int'), ('Ast', 'int'), ('G_plus_A', 'int'), ('G_minus_PK', 'int'), ('PK', 'int'), ('PKatt', 'int'), ('CrdY', 'int'), ('CrdR', 'int'), ('xG', 'float'), ('npxG', 'float'), ('xAG', 'float'), ('npxG_plus_xAG', 'float'), ('PrgC', 'int'), ('PrgP', 'int'), ('PrgR', 'int'), ('Gls_1', 'float'), ('Ast_1', 'float'), ('G_plus_A_1', 'float'), ('G_minus_PK_1', 'float'), ('G_plus_A_minus_PK', 'float'), ('xG_1', 'float'), ('xAG_1', 'float'), ('xG_plus_xAG', 'float'), ('npxG_1', 'float'), ('npxG_plus_xAG_1', 'float')] --
 
-print("----- Numeric fields casted -----")
+print("----- Numeric fields casted ------")
 
 # ---------------------------------
 # 7. Extract Nation code
