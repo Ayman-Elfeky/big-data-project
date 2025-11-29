@@ -1,5 +1,6 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, when, split, from_csv, avg, current_timestamp
+from pyspark.sql.functions import col, when, split, from_json, avg, current_timestamp
+from pyspark.sql.types import StructType, StructField, IntegerType, StringType, FloatType
 from time import sleep
 
 # ---------------------------------
@@ -14,47 +15,48 @@ spark.sparkContext.setLogLevel("WARN")
 print("----- Spark Session started -----")
 
 # ---------------------------------
-# 2. CSV Schema
+# 2. JSON Schema
 # ---------------------------------
-schema = """
-Rk INT,
-Player STRING,
-Nation STRING,
-Pos STRING,
-Squad STRING,
-Age INT,
-Born INT,
-MP INT,
-Starts INT,
-Min INT,
-n90s FLOAT,
-Gls INT,
-Ast INT,
-G_A INT,
-G_PK INT,
-PK INT,
-PKatt INT,
-CrdY INT,
-CrdR INT,
-xG FLOAT,
-npxG FLOAT,
-xAG FLOAT,
-npxG_xAG FLOAT,
-PrgC INT,
-PrgP INT,
-PrgR INT,
-Gls_1 FLOAT,
-Ast_1 FLOAT,
-G_A_1 FLOAT,
-G_PK_1 FLOAT,
-G_A_PK FLOAT,
-xG_1 FLOAT,
-xAG_1 FLOAT,
-xG_xAG FLOAT,
-npxG_1 FLOAT,
-npxG_xAG_1 FLOAT
-"""
-print("----- Schema defined -----")
+json_schema = StructType([
+    StructField("Rk", IntegerType(), True),
+    StructField("Player", StringType(), True),
+    StructField("Nation", StringType(), True),
+    StructField("Pos", StringType(), True),
+    StructField("Squad", StringType(), True),
+    StructField("Age", FloatType(), True),
+    StructField("Born", FloatType(), True),
+    StructField("MP", IntegerType(), True),
+    StructField("Starts", IntegerType(), True),
+    StructField("Min", IntegerType(), True),
+    StructField("90s", FloatType(), True),
+    StructField("Gls", IntegerType(), True),
+    StructField("Ast", IntegerType(), True),
+    StructField("G_plus_A", IntegerType(), True),
+    StructField("G_minus_PK", IntegerType(), True),
+    StructField("PK", IntegerType(), True),
+    StructField("PKatt", IntegerType(), True),
+    StructField("CrdY", IntegerType(), True),
+    StructField("CrdR", IntegerType(), True),
+    StructField("xG", FloatType(), True),
+    StructField("npxG", FloatType(), True),
+    StructField("xAG", FloatType(), True),
+    StructField("npxG_plus_xAG", FloatType(), True),
+    StructField("PrgC", IntegerType(), True),
+    StructField("PrgP", IntegerType(), True),
+    StructField("PrgR", IntegerType(), True),
+    StructField("Gls_1", FloatType(), True),
+    StructField("Ast_1", FloatType(), True),
+    StructField("G_plus_A_1", FloatType(), True),
+    StructField("G_minus_PK_1", FloatType(), True),
+    StructField("G_plus_A_minus_PK", FloatType(), True),
+    StructField("xG_1", FloatType(), True),
+    StructField("xAG_1", FloatType(), True),
+    StructField("xG_plus_xAG", FloatType(), True),
+    StructField("npxG_1", FloatType(), True),
+    StructField("npxG_plus_xAG_1", FloatType(), True),
+])
+
+print("----- JSON Schema defined -----")
 
 # ---------------------------------
 # 3. Read from Kafka
@@ -69,62 +71,39 @@ df_raw = spark.readStream \
 print("----- Kafka stream loaded -----")
 df_raw.printSchema()
 
-
-
 # Convert Kafka value to string
 df_string = df_raw.selectExpr("CAST(value AS STRING)")
-
-query = df_string.writeStream \
-    .format("console") \
-    .option("truncate", False) \
-    .option("numRows", 10) \
-    .start()
-    
 print("----- Kafka value converted to string -----")
 
 # ---------------------------------
-# 4. Parse CSV
+# 4. Parse JSON
 # ---------------------------------
-df = df_string.select(from_csv(col("value"), schema).alias("data")).select("data.*")
-
-print("----- CSV parsed -----")
+df = df_string.select(from_json(col("value"), json_schema).alias("data")).select("data.*")
+print("----- JSON parsed -----")
 
 # ---------------------------------
 # 5. Normalize field names
 # ---------------------------------
-df = df.withColumnRenamed("n90s", "90s") \
-       .withColumnRenamed("G_A", "G_plus_A") \
-       .withColumnRenamed("G_PK", "G_minus_PK") \
-       .withColumnRenamed("npxG_xAG", "npxG_plus_xAG") \
-       .withColumnRenamed("G_A_1", "G_plus_A_1") \
-       .withColumnRenamed("G_PK_1", "G_minus_PK_1") \
-       .withColumnRenamed("G_A_PK", "G_plus_A_minus_PK") \
-       .withColumnRenamed("xG_xAG", "xG_plus_xAG") \
-       .withColumnRenamed("npxG_xAG_1", "npxG_plus_xAG_1")
+df = df.withColumnRenamed("90s", "90s") \
+       .withColumnRenamed("G_plus_A", "G_plus_A") \
+       .withColumnRenamed("G_minus_PK", "G_minus_PK") \
+       .withColumnRenamed("npxG_plus_xAG", "npxG_plus_xAG") \
+       .withColumnRenamed("G_plus_A_1", "G_plus_A_1") \
+       .withColumnRenamed("G_minus_PK_1", "G_minus_PK_1") \
+       .withColumnRenamed("G_plus_A_minus_PK", "G_plus_A_minus_PK") \
+       .withColumnRenamed("xG_plus_xAG", "xG_plus_xAG") \
+       .withColumnRenamed("npxG_plus_xAG_1", "npxG_plus_xAG_1")
 
 print("----- Field names normalized -----")
 
-# # ---------------------------------
-# # 6. Cast numeric fields
-# # ---------------------------------
-print(F"\n\n\n\n----------------- DF.dtypes: {df.dtypes} ------------------------\n\n\n\n")
-numeric_cols = [c for c, t in df.dtypes if t == "string" and c not in ["Player", "Nation", "Pos", "Squad"]]
-print(f"\n\n\n\n------------------ Numeric columns: {numeric_cols} ----------------------------\n\n\n\n")
-for col_name in numeric_cols:
-    df = df.withColumn(col_name, col(col_name).cast("double"))
-
-# DF.dtypes: [('Rk', 'int'), ('Player', 'string'), ('Nation', 'string'), ('Pos', 'string'), ('Squad', 'string'), ('Age', 'int'), ('Born', 'int'), ('MP', 'int'), ('Starts', 'int'), ('Min', 'int'), ('90s', 'float'), ('Gls', 'int'), ('Ast', 'int'), ('G_plus_A', 'int'), ('G_minus_PK', 'int'), ('PK', 'int'), ('PKatt', 'int'), ('CrdY', 'int'), ('CrdR', 'int'), ('xG', 'float'), ('npxG', 'float'), ('xAG', 'float'), ('npxG_plus_xAG', 'float'), ('PrgC', 'int'), ('PrgP', 'int'), ('PrgR', 'int'), ('Gls_1', 'float'), ('Ast_1', 'float'), ('G_plus_A_1', 'float'), ('G_minus_PK_1', 'float'), ('G_plus_A_minus_PK', 'float'), ('xG_1', 'float'), ('xAG_1', 'float'), ('xG_plus_xAG', 'float'), ('npxG_1', 'float'), ('npxG_plus_xAG_1', 'float')] --
-
-print("----- Numeric fields casted -----")
-
 # ---------------------------------
-# 7. Extract Nation code
+# 6. Extract Nation code
 # ---------------------------------
-df = df.withColumn("Nation", f"check {split(col("Nation"), " ").getItem(1)}")
+df = df.withColumn("Nation", split(col("Nation"), " ").getItem(1))
 print("----- Nation codes extracted -----")
 
 # ---------------------------------
-# 8. Player analytics
+# 7. Player analytics
 # ---------------------------------
 df_analytics = df.withColumn(
     "shooting_accuracy",
@@ -146,7 +125,7 @@ df_analytics = df.withColumn(
 print("----- Player analytics metrics calculated -----")
 
 # ---------------------------------
-# 9. Team analytics
+# 8. Team analytics
 # ---------------------------------
 team_summary = df_analytics.groupBy("Squad").agg(
     avg("shooting_accuracy").alias("avg_shooting_accuracy"),
@@ -158,7 +137,7 @@ team_summary = df_analytics.groupBy("Squad").agg(
 print("----- Team analytics aggregated -----")
 
 # ---------------------------------
-# 10. PostgreSQL connection
+# 9. PostgreSQL connection
 # ---------------------------------
 postgres_url = "jdbc:postgresql://localhost:5432/playerdb"
 postgres_properties = {
@@ -170,7 +149,7 @@ postgres_properties = {
 print("----- PostgreSQL connection configured -----")
 
 # ---------------------------------
-# 11. Safe write function
+# 10. Safe write function
 # ---------------------------------
 def safe_write(df_batch, epoch_id, table_name, mode="append"):
     retries = 3
@@ -191,7 +170,7 @@ def safe_write(df_batch, epoch_id, table_name, mode="append"):
             sleep(5)
 
 # ---------------------------------
-# 12. Streaming writes
+# 11. Streaming writes
 # ---------------------------------
 player_query = df_analytics.writeStream \
     .foreachBatch(lambda df, eid: safe_write(df, eid, "player_analytics", "append")) \
@@ -208,7 +187,7 @@ team_query = team_summary.writeStream \
 print("----- Streaming queries started -----")
 
 # ---------------------------------
-# 13. Await termination
+# 12. Await termination
 # ---------------------------------
 player_query.awaitTermination()
 team_query.awaitTermination()
