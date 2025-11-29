@@ -142,7 +142,7 @@ print("----- Team analytics aggregated -----")
 postgres_url = "jdbc:postgresql://localhost:5432/playerdb"
 postgres_properties = {
     "user": "postgres",
-    "password": "ayman@123",
+    "password": "your-password",
     "driver": "org.postgresql.Driver"
 }
 
