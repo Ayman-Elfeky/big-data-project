@@ -3,3 +3,5 @@ checkpoints
 spark-structure-streaming-mongo.py
 try.py
 try.txt
+fifa.csv
+__pycache__/
