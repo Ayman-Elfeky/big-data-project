@@ -3,3 +3,9 @@ checkpoints
 spark-structure-streaming-mongo.py
 try.py
 try.txt
+fifa.csv
+__pycache__/
+old-project/
+database.sqlite
+*.sqlite
+*.db

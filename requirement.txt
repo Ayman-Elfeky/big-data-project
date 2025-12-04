@@ -1,3 +1,0 @@
-split data into two files
-dataset size 6000
-3 processes one transform for column , one transform for file , one to convert the type or value for column
