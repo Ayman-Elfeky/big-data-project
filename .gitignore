@@ -6,3 +6,6 @@ try.txt
 fifa.csv
 __pycache__/
 old-project/
+database.sqlite
+*.sqlite
+*.db
