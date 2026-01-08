@@ -149,5 +149,5 @@ org.postgresql:postgresql:42.7.3 \
 ---
 
 ## 📽️ Demo
-- Video Demo: [https://drive.google.com/file/d/1zoSeHsiQJi_xYmCBGOshto6U8VfHs3Gs/view?usp=sharing](Link)
+- Video Demo: [Link](https://drive.google.com/file/d/1zoSeHsiQJi_xYmCBGOshto6U8VfHs3Gs/view?usp=drive_link)
 
