@@ -42,7 +42,6 @@ Kafka Producer (Python)
 
 Make sure the following are installed and running:
 
-- Java 8+
 - Python 3.8+
 - Apache ZooKeeper
 - Apache Kafka
