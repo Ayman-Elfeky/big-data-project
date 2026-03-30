@@ -4,6 +4,11 @@ A real-time big data analytics system designed to ingest, process, and analyze p
 
 ---
 
+## 📽️ Demo
+- Video Demo: [Link](https://drive.google.com/file/d/1zoSeHsiQJi_xYmCBGOshto6U8VfHs3Gs/view?usp=drive_link)
+
+---
+
 ## 🚀 Project Overview
 
 This project implements a **real-time big data pipeline** for analyzing live player performance data.  
@@ -147,7 +152,4 @@ org.postgresql:postgresql:42.7.3 \
 - Add `.env` to `.gitignore`
 
 ---
-
-## 📽️ Demo
-- Video Demo: [Link](https://drive.google.com/file/d/1zoSeHsiQJi_xYmCBGOshto6U8VfHs3Gs/view?usp=drive_link)
 
